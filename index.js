@@ -3,7 +3,6 @@ const app = express();
 const bodyParser = require('body-parser');
 const rateLimiter = require('express-rate-limit');
 const compression = require('compression');
-const fs = require('fs');
 
 app.use(compression({
     level: 5,
@@ -30,8 +29,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(rateLimiter({ windowMs: 15 * 60 * 1000, max: 100, headers: true }));
 
-const users = {};
-
 app.all('/player/register', function (req, res) {
     const uData = JSON.stringify(req.body).split('"')[1].split('\\n');
     const uName = uData[0].split('|');
@@ -48,14 +45,7 @@ app.all('/player/register', function (req, res) {
         email: uEmail[1],
     };
 
-    fs.writeFile('users.json', JSON.stringify(users, null, 2), function (err) {
-        if (err) {
-            console.log(err);
-            res.status(500).send('Error saving user.');
-        } else {
-            res.redirect('/player/login/dashboard');
-        }
-    });
+    res.redirect('/player/login/dashboard');
 });
 
 app.all('/player/login/dashboard', function (req, res) {
